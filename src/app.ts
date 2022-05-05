@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import "express-async-errors";
 import { errorHandlerMiddleware } from "./middlewares/errorHandlerMiddleware.js";
+import adminRouter from "./routers/adminRouter.js";
 import recommendationRouter from "./routers/recommendationRouter.js";
 
 const app = express();
@@ -10,5 +11,9 @@ app.use(express.json());
 
 app.use("/recommendations", recommendationRouter);
 app.use(errorHandlerMiddleware);
+
+if (process.env.NODE_ENV === "tests") {
+  app.use(adminRouter);
+}
 
 export default app;
