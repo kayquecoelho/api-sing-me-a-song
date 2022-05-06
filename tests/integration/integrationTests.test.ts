@@ -44,6 +44,40 @@ describe("Integration Tests", () => {
     });
   });
 
+  describe("POST /recommendations/:id/downvote", () => {
+    beforeEach(truncateRecommendations);
+    afterAll(disconnect);
+
+    it("should return status 200 and decrease the recommendation score given a valid recommendation id", async () => {
+      const createdRecommendation = await recommendationFactory();
+
+      const response = await supertest(app).post(
+        `/recommendations/${createdRecommendation.id}/downvote`
+      );
+
+      const recommendation = await prisma.recommendation.findUnique({
+        where: { name: createdRecommendation.name },
+      });
+
+      expect(createdRecommendation.score - 1).toEqual(recommendation.score);
+      expect(response.status).toEqual(200);
+    });
+
+    it("should return status 200 and delete the recommendation with score lower than -5", async () => {
+      const createdRecommendation = await lowScoreRecommendationFactory();
+
+      const response = await supertest(app).post(
+        `/recommendations/${createdRecommendation.id}/downvote`
+      );
+
+      const recommendation = await prisma.recommendation.findUnique({
+        where: { name: createdRecommendation.name },
+      });
+
+      expect(recommendation).toBeNull();
+      expect(response.status).toEqual(200);
+    });
+  });
 });
 
 async function truncateRecommendations() {
