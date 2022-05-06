@@ -2,8 +2,10 @@ import { CreateRecommendationData } from "../../src/services/recommendationsServ
 import supertest from "supertest";
 import app from "../../src/app.js";
 import { prisma } from "../../src/database.js";
+import topRecommendationsFactory from "../factories/topRecommendationFactory.js";
 
 describe("Integration Tests", () => {
+
   describe("POST /recommendations", () => {
     beforeEach(truncateRecommendations);
     afterAll(disconnect);
@@ -78,6 +80,49 @@ describe("Integration Tests", () => {
       expect(response.status).toEqual(200);
     });
   });
+
+  describe("GET /recommendations/:id", () => {
+    beforeEach(truncateRecommendations);
+    afterAll(disconnect);
+
+    it("should return the object of a recommendation", async () => {
+      const recommendation = await recommendationFactory();
+
+      const response = await supertest(app).get(`/recommendations/${recommendation.id}`);
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(recommendation);
+    });
+  });
+
+  describe("GET /recommendations/random", () => {
+    beforeEach(truncateRecommendations);
+    afterAll(disconnect);
+
+    it("should return the only recommendation that exists into database", async () => {
+      const recommendation = await recommendationFactory();
+
+      const response = await supertest(app).get(`/recommendations/random`);
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(recommendation);
+    });
+  });
+
+  describe("GET /recommendations/top/:amount", () => {
+    beforeEach(truncateRecommendations);
+    afterAll(disconnect);
+
+    it("should return an array with 2 recommendations sorted by score", async () => {
+      const [topScore, lowerScore] = await topRecommendationsFactory();
+
+      const response = await supertest(app).get("/recommendations/top/2");
+
+      expect(response.body[0]).toEqual(topScore);
+      expect(response.body[1]).toEqual(lowerScore);
+      expect(response.status).toEqual(200);
+    });
+  })
 });
 
 async function truncateRecommendations() {
