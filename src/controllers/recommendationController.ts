@@ -15,17 +15,21 @@ async function insert(req: Request, res: Response) {
 }
 
 async function upvote(req: Request, res: Response) {
-  const { id } = req.params;
+  const id = +req.params.id;
 
-  await recommendationService.upvote(+id);
+  if (isNaN(id)) return res.sendStatus(400);
+
+  await recommendationService.upvote(id);
 
   res.sendStatus(200);
 }
 
 async function downvote(req: Request, res: Response) {
-  const { id } = req.params;
+  const id = +req.params.id;
 
-  await recommendationService.downvote(+id);
+  if (isNaN(id)) return res.sendStatus(400);
+
+  await recommendationService.downvote(id);
 
   res.sendStatus(200);
 }
@@ -42,16 +46,21 @@ async function get(req: Request, res: Response) {
 }
 
 async function getTop(req: Request, res: Response) {
-  const { amount } = req.params;
+  const amount  = +req.params.amount;
 
-  const recommendations = await recommendationService.getTop(+amount);
+  if (isNaN(amount)) return res.sendStatus(400);
+
+  const recommendations = await recommendationService.getTop(amount);
   res.send(recommendations);
 }
 
 async function getById(req: Request, res: Response) {
-  const { id } = req.params;
+  const id = +req.params.id;
 
-  const recommendation = await recommendationService.getById(+id);
+  if (isNaN(id)) return res.sendStatus(400);
+
+  const recommendation = await recommendationService.getById(id);
+  
   res.send(recommendation);
 }
 

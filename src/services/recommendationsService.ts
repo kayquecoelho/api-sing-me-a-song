@@ -1,22 +1,28 @@
 import { Recommendation } from "@prisma/client";
 import { recommendationRepository } from "../repositories/recommendationRepository.js";
-import { notFoundError } from "../utils/errorUtils.js";
+import { conflictError, notFoundError } from "../utils/errorUtils.js";
 
 export type CreateRecommendationData = Omit<Recommendation, "id" | "score">;
 
 async function insert(createRecommendationData: CreateRecommendationData) {
+  const recommendation = await recommendationRepository.findByName(
+    createRecommendationData.name
+  );
+
+  if (recommendation) throw conflictError("Recommendation exists");
+
   await recommendationRepository.create(createRecommendationData);
 }
 
 async function upvote(id: number) {
-  const recommendation = await recommendationRepository.find(id);
+  const recommendation = await recommendationRepository.findById(id);
   if (!recommendation) throw notFoundError();
 
   await recommendationRepository.updateScore(id, "increment");
 }
 
 async function downvote(id: number) {
-  const recommendation = await recommendationRepository.find(id);
+  const recommendation = await recommendationRepository.findById(id);
   if (!recommendation) throw notFoundError();
 
   await recommendationRepository.updateScore(id, "decrement");
@@ -27,7 +33,11 @@ async function downvote(id: number) {
 }
 
 async function getById(id: number) {
-  return recommendationRepository.find(id);
+  const recommendation = await recommendationRepository.findById(id);
+
+  if (!recommendation) throw notFoundError();
+
+  return recommendation;
 }
 
 async function get() {

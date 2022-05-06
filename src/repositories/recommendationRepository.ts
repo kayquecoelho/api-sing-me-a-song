@@ -41,9 +41,15 @@ function getFindAllFilter(
   };
 }
 
-function find(id: number) {
+function findById(id: number) {
   return prisma.recommendation.findUnique({
     where: { id },
+  });
+}
+
+function findByName(name: string) {
+  return prisma.recommendation.findUnique({
+    where: { name },
   });
 }
 
@@ -65,7 +71,8 @@ async function remove(id: number) {
 export const recommendationRepository = {
   create,
   findAll,
-  find,
+  findById,
+  findByName,
   updateScore,
   getAmountByScore,
   remove,
