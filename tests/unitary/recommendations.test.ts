@@ -42,6 +42,18 @@ describe("Unitary Tests Recommendations", () => {
     });
   });
 
+  describe("GET /recommendations/:id", () => {
+    it("should return status 404 given an invalid recommendationId", async () => {
+      jest
+        .spyOn(recommendationRepository, "findById")
+        .mockResolvedValueOnce(null);
+
+      expect(recommendationService.getById(1)).rejects.toEqual(
+        notFoundError()
+      );
+    });
+  });
+
   describe("GET /recommendations/random", () => {
     beforeEach(() => {
       jest.clearAllMocks();

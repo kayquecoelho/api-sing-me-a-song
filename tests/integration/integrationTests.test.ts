@@ -7,7 +7,6 @@ import lowScoreRecommendationFactory from "../factories/lowScoreRecommendationFa
 import recommendationBodyFactory from "../factories/recommendationBodyFactory.js";
 
 describe("Integration Tests", () => {
-
   describe("POST /recommendations", () => {
     beforeEach(truncateRecommendations);
     afterAll(disconnect);
@@ -83,6 +82,20 @@ describe("Integration Tests", () => {
     });
   });
 
+  describe("GET /recommendations", () => {
+    beforeEach(truncateRecommendations);
+    afterAll(disconnect);
+
+    it("should return an empty array and status 200", async () => {
+      const recommendation = await recommendationFactory();
+
+      const response = await supertest(app).get("/recommendations");
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual([recommendation]);
+    });  
+  });
+
   describe("GET /recommendations/:id", () => {
     beforeEach(truncateRecommendations);
     afterAll(disconnect);
@@ -90,7 +103,9 @@ describe("Integration Tests", () => {
     it("should return the object of a recommendation", async () => {
       const recommendation = await recommendationFactory();
 
-      const response = await supertest(app).get(`/recommendations/${recommendation.id}`);
+      const response = await supertest(app).get(
+        `/recommendations/${recommendation.id}`
+      );
 
       expect(response.status).toEqual(200);
       expect(response.body).toEqual(recommendation);
@@ -124,7 +139,7 @@ describe("Integration Tests", () => {
       expect(response.body[1]).toEqual(lowerScore);
       expect(response.status).toEqual(200);
     });
-  })
+  });
 });
 
 async function truncateRecommendations() {
