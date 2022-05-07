@@ -1,8 +1,10 @@
-import { CreateRecommendationData } from "../../src/services/recommendationsService.js";
 import supertest from "supertest";
 import app from "../../src/app.js";
 import { prisma } from "../../src/database.js";
 import topRecommendationsFactory from "../factories/topRecommendationFactory.js";
+import recommendationFactory from "../factories/recommendationFactory.js";
+import lowScoreRecommendationFactory from "../factories/lowScoreRecommendationFactory.js";
+import recommendationBodyFactory from "../factories/recommendationBodyFactory.js";
 
 describe("Integration Tests", () => {
 
@@ -131,32 +133,4 @@ async function truncateRecommendations() {
 
 async function disconnect() {
   return prisma.$disconnect();
-}
-
-function recommendationBodyFactory() {
-  const recommendation: CreateRecommendationData = {
-    name: "the 1",
-    youtubeLink: "https://www.youtube.com/watch?v=KsZ6tROaVOQ",
-  };
-  return recommendation;
-}
-
-async function recommendationFactory() {
-  const recommendation = recommendationBodyFactory();
-
-  const createdRecommendation = await prisma.recommendation.create({
-    data: recommendation,
-  });
-
-  return createdRecommendation;
-}
-
-async function lowScoreRecommendationFactory() {
-  const recommendation = recommendationBodyFactory();
-
-  const createdRecommendation = await prisma.recommendation.create({
-    data: { ...recommendation, score: -5 },
-  });
-
-  return createdRecommendation;
 }
